@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <div class="header-placeholder" style="height: 300px"></div>
     <div class="header">
       <el-upload
         ref="upload"
@@ -71,11 +70,17 @@ import { saveAs } from "file-saver";
 
 const OpenUsageInstructions = () => {
   ElMessageBox.alert(
-    "1.选择图片<br>2.标记要切割的位置<br>3.点击裁剪<br>4.下载切好的图片<br>5.纯本地操作不需要网络",
+    `${
+      "1.点击 '选择图片' 按钮选择图片<br>" +
+      "2.在图片左侧预览区任意位置点击，黑色线条即会移动到这个位置然后点击 '标记' 按钮就会在当前黑色线条停留位置生成一条红色的线来标记需要分割的位置<br>" +
+      "3.点击 '分割' 按钮开始分割，并将预览图展示出来<br>" +
+      "4.点击 '下载切图压缩包' 按钮即可下载分割好的图片压缩包<br>" +
+      "5.点击 '撤销' 按钮可撤销最近一次标记<br>" +
+      "6.点击 '重置' 按钮可重置（暂时没做，手动 F5 刷新）<br>" +
+      "Tisp：点击右上角图标即可查看源码"
+    }`,
     "使用方法",
     {
-      // if you want to disable its autofocus
-      // autofocus: false,
       confirmButtonText: "OK",
       dangerouslyUseHTMLString: true,
     }
@@ -190,7 +195,6 @@ const handleUploadChange = ({ raw }) => {
     drawImageOnCanvas(image);
   };
   imageUrl.value = URL.createObjectURL(raw);
-  document.querySelector(".header-placeholder").style.height = "0";
 };
 
 // 渲染图片
@@ -333,17 +337,22 @@ const handleDownload = () => {
 <style lang="less" scoped>
 .container {
   width: 100%;
-  // min-height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
+  flex-direction: column;
   text-align: center;
   box-sizing: border-box;
-  // padding-top: 300px;
 }
 
 .header {
   position: sticky;
   top: 0px;
   z-index: 999;
+  box-sizing: border-box;
+  padding: 20px;
 }
 
 .upload-button {
