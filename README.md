@@ -43,7 +43,11 @@ https://wumingluren.github.io/LongPicCutter
 源码地址：
 https://github.com/wumingluren/LongPicCutter
 
+使用[Pake](https://github.com/tw93/Pake)进行打包，有条件的朋友可以打一个Mac版的包
+
 Windows： 
 https://pan.baidu.com/s/1mwvwEe59Pd3n2GJ15Cs6rg?pwd=axjm 提取码: axjm 
+
+https://pan.quark.cn/s/a123822c02d4
 
 Mac：暂无 Windows电脑打不了Mac的包
