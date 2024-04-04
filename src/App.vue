@@ -25,13 +25,12 @@
         >下载切图压缩包</el-button
       >
     </div>
-
+    <!-- @click="handleLineClick" -->
     <div class="content-box">
       <div
         ref="imageBox"
         class="image-box"
         :style="{ height: imageHeight + 'px' }"
-        @click="handleLineClick"
       >
         <template v-if="!imageUrl">
           <el-empty description="请选择图片" />
@@ -41,11 +40,20 @@
           class="image-canvas"
           :style="{ height: imageHeight + 'px' }"
         ></canvas>
-        <div class="cut-line" :style="{ top: cutLinePosition + 'px' }"></div>
+        <!-- @mouseleave="endDrag" -->
+        <div
+          class="cut-line"
+          :style="{ top: cutLinePosition + 'px' }"
+          @mousedown.stop="startDrag"
+          @mousemove.stop="dragging"
+          @mouseup.stop="endDrag"
+        >
+          <div class="cut-line-marker"></div>
+        </div>
         <!-- <div class="mark-box">
-        <span class="mark-text">切割线</span>
+        <span class="mark-text">分割线</span>
         <div class="mark-line"></div>
-        <span class="mark-text">切割线</span>
+        <span class="mark-text">分割线</span>
       </div> -->
       </div>
       <div class="img-preview">
@@ -71,12 +79,12 @@ import { saveAs } from "file-saver";
 const OpenUsageInstructions = () => {
   ElMessageBox.alert(
     `${
-      "1.点击 '选择图片' 按钮选择图片<br>" +
-      "2.在图片左侧预览区任意位置点击，黑色线条即会移动到这个位置然后点击 '标记' 按钮就会在当前黑色线条停留位置生成一条红色的线来标记需要分割的位置<br>" +
-      "3.点击 '分割' 按钮开始分割，并将预览图展示出来<br>" +
-      "4.点击 '下载切图压缩包' 按钮即可下载分割好的图片压缩包<br>" +
-      "5.点击 '撤销' 按钮可撤销最近一次标记<br>" +
-      "6.点击 '重置' 按钮可重置（暂时没做，手动 F5 刷新）<br>" +
+      "1. 点击 '选择图片' 按钮选择图片，即可在左侧预览区预览图片<br>" +
+      "2. 在左侧预览区任意位置点击，或者鼠标在黑色线条处按下拖动，黑色线条即会移动到目标位置，点击 '标记' 按钮就会在当前黑色线条停留位置生成一条红色的线来标记需要分割的位置<br>" +
+      "3. 点击 '分割' 按钮开始分割，并在右侧将预览图展示出来<br>" +
+      "4. 点击 '下载切图压缩包' 按钮即可下载分割好的图片压缩包<br>" +
+      "5. 点击 '撤销' 按钮可撤销最近一次标记<br>" +
+      "6. 点击 '重置' 按钮可重置（暂时没做，手动 F5 刷新）<br>" +
       "Tisp：点击右上角图标即可查看源码"
     }`,
     "使用方法",
@@ -96,7 +104,7 @@ const imageBox = ref(null);
 const imageHeight = ref(300);
 
 // 标记点位置和标记线数组
-const cutLinePosition = ref(300);
+const cutLinePosition = ref(100);
 const cutLines = ref([]);
 const marks = ref([]);
 
@@ -146,7 +154,7 @@ const redrawMarks = () => {
     // 创建并设置mark-text元素
     const markTextBefore = document.createElement("span");
     markTextBefore.classList.add("mark-text");
-    markTextBefore.textContent = "切割线";
+    markTextBefore.textContent = "分割线";
 
     // 创建mark-line元素
     const markLine = document.createElement("div");
@@ -155,7 +163,7 @@ const redrawMarks = () => {
     // 创建并设置第二个mark-text元素
     const markTextAfter = document.createElement("span");
     markTextAfter.classList.add("mark-text");
-    markTextAfter.textContent = "切割线";
+    markTextAfter.textContent = "分割线";
 
     // 将mark-text和mark-line元素添加到markBox中
     markBox.appendChild(markTextBefore);
@@ -332,6 +340,92 @@ const handleDownload = () => {
     saveAs(content, "长切图压缩包包.zip");
   });
 };
+
+const isDragging = ref(false); // 拖拽状态标志
+const lastMouseY = ref(0); // 上一次鼠标的Y坐标
+
+const startDrag = (event) => {
+  console.log("====================================");
+  console.log("拖动开始了", event);
+  console.log("====================================");
+  isDragging.value = true;
+  lastMouseY.value = event.clientY;
+  document.addEventListener("mousemove", dragging);
+  document.addEventListener("mouseup", endDrag);
+  document.addEventListener("mouseleave", endDrag);
+};
+
+const dragging = (event) => {
+  if (!isDragging.value) return;
+
+  console.log("====================================");
+  console.log(isDragging.value, "拖动中", event);
+  console.log(event.clientY, "拖动中", lastMouseY.value);
+  console.log("====================================");
+
+  const deltaY = event.clientY - lastMouseY.value;
+
+  const maxHeight = imageBox.value.clientHeight; // 获取父元素高度
+
+  cutLinePosition.value = Math.max(
+    0,
+    Math.min(cutLinePosition.value + deltaY, maxHeight)
+  );
+  lastMouseY.value = event.clientY;
+
+  // 阻止页面滚动
+  event.preventDefault();
+};
+
+const endDrag = (event) => {
+  console.log("====================================");
+  console.log("拖动结束了", event);
+  // 获取cut-line元素的引用
+  const cutLineElement = document.querySelector(".cut-line");
+  // 获取image-box元素的引用
+  const imageBoxElement = document.querySelector(".image-box");
+  console.log(
+    "距离",
+    getOffsetTopRelativeToParent(cutLineElement, imageBoxElement)
+  );
+  console.log("====================================");
+  isDragging.value = false;
+  document.removeEventListener("mousemove", dragging);
+  document.removeEventListener("mouseup", endDrag);
+  document.removeEventListener("mouseleave", endDrag);
+};
+
+const getOffsetTopRelativeToParent = (childElement, parentElement) => {
+  // 首先获取子元素相对于文档的偏移量
+  const childRect = childElement.getBoundingClientRect();
+  const childOffsetTop = childRect.top + window.scrollY;
+
+  // 然后获取父元素的边距和边框
+  const parentStyle = getComputedStyle(parentElement);
+  const parentBorderTop = parseInt(parentStyle.borderTopWidth, 10);
+  const parentPaddingTop = parseInt(parentStyle.paddingTop, 10);
+
+  // 计算父元素的顶部偏移量，包括边距和边框
+  const parentOffsetTop =
+    parentElement.offsetTop + parentBorderTop + parentPaddingTop;
+
+  // 最后，从子元素相对于文档的偏移量中减去父元素的偏移量，得到相对于父元素的偏移量
+  return childOffsetTop - parentOffsetTop;
+};
+
+onMounted(() => {
+  // 获取cut-line元素的引用
+  const cutLineElement = document.querySelector(".cut-line");
+  // 获取image-box元素的引用
+  const imageBoxElement = document.querySelector(".image-box");
+
+  console.log("====================================");
+  console.log(
+    "距离",
+    getOffsetTopRelativeToParent(cutLineElement, imageBoxElement)
+  );
+  console.log("====================================");
+});
 </script>
 
 <style lang="less" scoped>
@@ -395,6 +489,33 @@ const handleDownload = () => {
   background-color: black;
   top: 300px; /* 默认悬浮位置 */
   z-index: 9;
+  cursor: ns-resize;
+  transform: translateY(-50%);
+  display: flex; /* 使用flex布局 */
+  align-items: center; /* 垂直居中对齐 */
+  justify-content: flex-end; /* 水平方向上靠右对齐 */
+}
+
+.cut-line-marker {
+  width: 16px; /* 小元素的宽度 */
+  height: 10px; /* 小元素的高度 */
+  background-color: black; /* 小元素的背景颜色 */
+  // border-radius: 50%; /* 圆形效果 */
+  margin-left: 5px; /* 与横线的间距 */
+  position: relative;
+}
+
+.cut-line-marker::after {
+  content: ""; /* 伪元素需要content属性 */
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent; /* 上边框 */
+  border-bottom: 5px solid transparent; /* 下边框 */
+  border-right: 5px solid black; /* 右边框，形成三角形 */
+  position: absolute; /* 绝对定位 */
+  top: 50%; /* 垂直居中 */
+  left: -5px; /* 位于矩形的左侧外侧 */
+  transform: translateY(-50%); /* 垂直居中 */
 }
 
 :global(.mark-box) {
@@ -406,6 +527,9 @@ const handleDownload = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 99;
+  user-select: none;
+  pointer-events: none;
 }
 
 :global(.mark-line) {
