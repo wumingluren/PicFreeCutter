@@ -33,3 +33,17 @@ Vue3，element-plus，pnpm，file-saver，jszip
 <center> 图二 </center>
 
 ![图二](./演示图/图二.jpg)
+
+## 地址
+无名长图片自由分割/切割在线工具 
+
+在线体验：
+https://wumingluren.github.io/LongPicCutter
+
+源码地址：
+https://github.com/wumingluren/LongPicCutter
+
+Windows： 
+https://pan.baidu.com/s/1mwvwEe59Pd3n2GJ15Cs6rg?pwd=axjm 提取码: axjm 
+
+Mac：暂无 Windows电脑打不了Mac的包
