@@ -1,11 +1,12 @@
 {
-  "name": "longshotslicer",
+  "name": "long-pic-cutter",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:github": "vite build --mode github",
     "preview": "vite preview"
   },
   "dependencies": {
