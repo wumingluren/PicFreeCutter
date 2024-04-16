@@ -11,10 +11,18 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
+    "@leafer-in/editor": "1.0.0-rc.19",
+    "@leafer-in/scroll": "1.0.0-rc.19",
+    "@leafer-in/state": "1.0.0-rc.19",
+    "@leafer-in/view": "1.0.0-rc.19",
+    "@vueuse/core": "^10.9.0",
     "element-plus": "^2.6.3",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
+    "leafer-ui": "1.0.0-rc.19",
+    "leafer-x-ruler": "^1.0.7",
     "less": "^4.2.0",
+    "lodash.debounce": "^4.0.8",
     "vue": "^3.4.21"
   },
   "devDependencies": {
