@@ -22,7 +22,7 @@ Vue3，LeaferJS，element-plus，file-saver，jszip，vueuse，pnpm
 
 <center> 图二 </center>
 
-![图二](./演示图/图二.jpg)
+![图二](./演示图/图二.png)
 
 ## 地址
 
