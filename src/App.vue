@@ -33,7 +33,7 @@
         <!-- <el-button type="primary" @click="getMarks">检测</el-button> -->
       </div>
     </div>
-    <div ref="contentRef" class="content-box" v-if="imageUrl">
+    <div ref="contentRef" class="content-box" v-show="imageUrl">
       <div ref="leaferRef" class="leafer-box" id="leafer-box"></div>
       <div class="right-box">
         <div class="mode-box">
@@ -168,6 +168,7 @@ const handleUploadChange = ({ raw }) => {
     setTimeout(() => {
       createLeaferApp();
       addImg();
+      leaferRefResize();
     }, 200);
   };
   imageUrl.value = URL.createObjectURL(raw);
@@ -607,16 +608,19 @@ const refreshPage = () => {
 
 const contentRef = ref();
 const leaferRef = ref();
-onMounted(() => {
-  // createLeaferApp();
+
+const leaferRefResize = () => {
   useResizeObserver(leaferRef, (entries) => {
     const [entry] = entries;
     const { width, height } = entry.contentRect;
+    console.log(leaferApp.value, "leaferRef大小变化", width, height);
     // 这步是为了触发leafer-ui的resize事件，标尺在监听到resize事件后会重新渲染
-    if (!leaferApp.value || imageUrl.value) return;
+    if (!leaferApp.value || !imageUrl.value) return;
     leaferApp.value.app.resize({ width, height });
-    console.log("leaferRef大小变化", width, height);
   });
+};
+onMounted(() => {
+  // createLeaferApp();
 });
 </script>
 
