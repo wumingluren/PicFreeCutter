@@ -16,7 +16,7 @@ export default defineConfig(({ command, mode }) => {
 
   // 定义 legacy 插件的条件逻辑
   const legacyPlugin =
-    VITE_APP_TYPE !== "github"
+    VITE_APP_TYPE === "legacy"
       ? legacy({
           targets: ["defaults", "not IE 11"],
         })
@@ -48,9 +48,10 @@ export default defineConfig(({ command, mode }) => {
         filename: "stats.html", // 分析图生成的文件名
       }),
       // 插件报错暂不启用
-      // analyzer({
-      //   openAnalyzer: false, // 是否打开静态网站
-      // }),
+      analyzer({
+        analyzerMode: "static",
+        openAnalyzer: false, // 是否打开静态网站
+      }),
     ].filter(Boolean), // 确保只有真值被包含
     build: {
       //rollup打包后的静态资源名称格式
