@@ -1,5 +1,5 @@
 // vite.config.js
-import { defineConfig, loadEnv, splitVendorChunkPlugin } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
@@ -47,7 +47,6 @@ export default defineConfig(({ command, mode }) => {
         brotliSize: true, // 收集 brotli 大小并将其显示
         filename: "stats.html", // 分析图生成的文件名
       }),
-      splitVendorChunkPlugin(),
       // 插件报错暂不启用
       // analyzer({
       //   openAnalyzer: false, // 是否打开静态网站
@@ -60,63 +59,61 @@ export default defineConfig(({ command, mode }) => {
           dir: "dist/",
           manualChunks(id) {
             if (id.includes("node_modules")) {
-              console.log("打印id", id);
               return "vendor";
             }
+            // npm 正常 pnpm 会报错
+            // if (id.includes("node_modules")) {
+            //   return id
+            //     .toString()
+            //     .split("node_modules/")[1]
+            //     .split("/")[0]
+            //     .toString();
+            // }
           },
+          // 会导致报错
           // manualChunks: {
-          //   elementplus: ["element-plus"],
+          //   // elementplus: ["element-plus"],
+          //   vue: ["vue"],
+          //   // leafer: ["leafer-ui", "leafer-in"],
           // },
-          // 最小化拆分包
+          // 最小化拆分包 会导致报错
           // manualChunks(id) {
-          //   // if (id.includes("node_modules")) {
-          //   //   // 这里代码可以优化一下，但是我懒，我相信你一定可以的！
-          //   //   if (id.includes("element-plus")) {
-          //   //     return "element-plus";
-          //   //   } else if (id.includes("leafer-in") || id.includes("leafer-ui")) {
-          //   //     return "leafer";
-          //   //   } else {
-          //   //     return "vendor";
-          //   //   }
-          //   // } else {
-          //   //   return "index";
-          //   // }
-          //   // // 创建一个对象映射，用于存储库名及其对应的chunk名称
-          //   // const libraryChunkMap = {
-          //   //   "element-plus": "element-plus",
-          //   //   "leafer-in": "leafer",
-          //   //   "leafer-ui": "leafer",
-          //   //   vue: "vue",
-          //   // };
+          //   // 创建一个对象映射，用于存储库名及其对应的chunk名称
+          //   const libraryChunkMap = {
+          //     "element-plus": "element-plus",
+          //     "leafer-in": "leafer",
+          //     "leafer-ui": "leafer",
+          //     vue: "vue",
+          //   };
 
-          //   // // 检查模块ID是否包含'node_modules'，即是否为第三方依赖
-          //   // if (id.includes("node_modules")) {
-          //   //   // 遍历libraryChunkMap的键（即库名），查找与模块ID存在包含关系的库名
-          //   //   const matchedLibrary = Object.keys(libraryChunkMap).find(
-          //   //     (library) => id.includes(library)
-          //   //   );
+          //   // 检查模块ID是否包含'node_modules'，即是否为第三方依赖
+          //   if (id.includes("node_modules")) {
+          //     // 遍历libraryChunkMap的键（即库名），查找与模块ID存在包含关系的库名
+          //     const matchedLibrary = Object.keys(libraryChunkMap).find(
+          //       (library) => id.includes(library)
+          //     );
 
-          //   //   // 如果找到了匹配的库名，返回对应的chunk名称（从libraryChunkMap中获取）
-          //   //   if (matchedLibrary) {
-          //   //     return libraryChunkMap[matchedLibrary];
-          //   //   } else {
-          //   //     // 如果未找到匹配的库名，将该第三方依赖归入默认的'vendor' chunk
-          //   //     return "vendor";
-          //   //   }
-          //   // } else {
-          //   //   // 如果模块ID不包含'node_modules'，即不是第三方依赖，则将其归入'index' chunk
-          //   //   return "index";
-          //   // }
+          //     // 如果找到了匹配的库名，返回对应的chunk名称（从libraryChunkMap中获取）
+          //     if (matchedLibrary) {
+          //       return libraryChunkMap[matchedLibrary];
+          //     } else {
+          //       // 如果未找到匹配的库名，将该第三方依赖归入默认的'vendor' chunk
+          //       return "vendor";
+          //     }
+          //   } else {
+          //     // 如果模块ID不包含'node_modules'，即不是第三方依赖，则将其归入'index' chunk
+          //     return "index";
+          //   }
           // },
           // 设置chunk的文件名格式
           chunkFileNames: (chunkInfo) => {
             const facadeModuleId = chunkInfo.facadeModuleId
               ? chunkInfo.facadeModuleId.split("/")
               : [];
-            const fileName1 =
+            const fileName =
               facadeModuleId[facadeModuleId.length - 2] || "[name]";
             // 根据chunk的facadeModuleId（入口模块的相对路径）生成chunk的文件名
-            return `js/${fileName1}/[name].[hash].js`;
+            return `js/${fileName}/[name].[hash].js`;
           },
           // 设置入口文件的文件名格式
           entryFileNames: "js/[name].[hash].js",
