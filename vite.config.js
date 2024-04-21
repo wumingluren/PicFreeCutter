@@ -22,6 +22,70 @@ export default defineConfig(({ command, mode }) => {
         })
       : undefined;
 
+  let manualChunks;
+  // 分包配置
+  if (VITE_APP_TYPE !== "legacy") {
+    // 方法一
+    // manualChunks = {
+    //   manualChunks(id) {
+    //     // 分两个包
+    //     if (id.includes("node_modules")) {
+    //       return "vendor";
+    //     }
+    //     // 有多少模块就分多少包
+    //     // npm 正常 pnpm 会报错
+    //     // if (id.includes("node_modules")) {
+    //     //   return id
+    //     //     .toString()
+    //     //     .split("node_modules/")[1]
+    //     //     .split("/")[0]
+    //     //     .toString();
+    //     // }
+    //   },
+    // };
+    // 方法二
+    // manualChunks = {
+    //   // 使用 legacy 会导致报错
+    //   manualChunks: {
+    //     elementplus: ["element-plus"],
+    //     vue: ["vue"],
+    //     // leafer: ["leafer-ui", "leafer-in"],
+    //   },
+    // };
+    // 方法三
+    manualChunks = {
+      // 自定义拆包 使用 legacy 会导致报错
+      manualChunks(id) {
+        // 创建一个对象映射，用于存储库名及其对应的chunk名称
+        const libraryChunkMap = {
+          "element-plus": "element-plus",
+          // vue: "vue",
+          // "leafer-in": "leafer",
+          // "leafer-ui": "leafer",
+        };
+
+        // 检查模块ID是否包含'node_modules'，即是否为第三方依赖
+        if (id.includes("node_modules")) {
+          // 遍历libraryChunkMap的键（即库名），查找与模块ID存在包含关系的库名
+          const matchedLibrary = Object.keys(libraryChunkMap).find((library) =>
+            id.includes(library)
+          );
+
+          // 如果找到了匹配的库名，返回对应的chunk名称（从libraryChunkMap中获取）
+          if (matchedLibrary) {
+            return libraryChunkMap[matchedLibrary];
+          } else {
+            // 如果未找到匹配的库名，将该第三方依赖归入默认的'vendor' chunk
+            return "vendor";
+          }
+        } else {
+          // 如果模块ID不包含'node_modules'，即不是第三方依赖，则将其归入'index' chunk
+          return "index";
+        }
+      },
+    };
+  }
+
   return {
     base: VITE_APP_BASE || "./",
     plugins: [
@@ -58,54 +122,7 @@ export default defineConfig(({ command, mode }) => {
       rollupOptions: {
         output: {
           dir: "dist/",
-          manualChunks(id) {
-            if (id.includes("node_modules")) {
-              return "vendor";
-            }
-            // npm 正常 pnpm 会报错
-            // if (id.includes("node_modules")) {
-            //   return id
-            //     .toString()
-            //     .split("node_modules/")[1]
-            //     .split("/")[0]
-            //     .toString();
-            // }
-          },
-          // 会导致报错
-          // manualChunks: {
-          //   // elementplus: ["element-plus"],
-          //   vue: ["vue"],
-          //   // leafer: ["leafer-ui", "leafer-in"],
-          // },
-          // 最小化拆分包 会导致报错
-          // manualChunks(id) {
-          //   // 创建一个对象映射，用于存储库名及其对应的chunk名称
-          //   const libraryChunkMap = {
-          //     "element-plus": "element-plus",
-          //     "leafer-in": "leafer",
-          //     "leafer-ui": "leafer",
-          //     vue: "vue",
-          //   };
-
-          //   // 检查模块ID是否包含'node_modules'，即是否为第三方依赖
-          //   if (id.includes("node_modules")) {
-          //     // 遍历libraryChunkMap的键（即库名），查找与模块ID存在包含关系的库名
-          //     const matchedLibrary = Object.keys(libraryChunkMap).find(
-          //       (library) => id.includes(library)
-          //     );
-
-          //     // 如果找到了匹配的库名，返回对应的chunk名称（从libraryChunkMap中获取）
-          //     if (matchedLibrary) {
-          //       return libraryChunkMap[matchedLibrary];
-          //     } else {
-          //       // 如果未找到匹配的库名，将该第三方依赖归入默认的'vendor' chunk
-          //       return "vendor";
-          //     }
-          //   } else {
-          //     // 如果模块ID不包含'node_modules'，即不是第三方依赖，则将其归入'index' chunk
-          //     return "index";
-          //   }
-          // },
+          ...(VITE_APP_TYPE !== "legacy" && manualChunks),
           // 设置chunk的文件名格式
           chunkFileNames: (chunkInfo) => {
             const facadeModuleId = chunkInfo.facadeModuleId
