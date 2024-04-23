@@ -25,34 +25,6 @@ export default defineConfig(({ command, mode }) => {
   let manualChunks;
   // 分包配置
   if (VITE_APP_TYPE !== "legacy") {
-    // 方法一
-    // manualChunks = {
-    //   manualChunks(id) {
-    //     // 分两个包
-    //     if (id.includes("node_modules")) {
-    //       return "vendor";
-    //     }
-    //     // 有多少模块就分多少包
-    //     // npm 正常 pnpm 会报错
-    //     // if (id.includes("node_modules")) {
-    //     //   return id
-    //     //     .toString()
-    //     //     .split("node_modules/")[1]
-    //     //     .split("/")[0]
-    //     //     .toString();
-    //     // }
-    //   },
-    // };
-    // 方法二
-    // manualChunks = {
-    //   // 使用 legacy 会导致报错
-    //   manualChunks: {
-    //     elementplus: ["element-plus"],
-    //     vue: ["vue"],
-    //     // leafer: ["leafer-ui", "leafer-in"],
-    //   },
-    // };
-    // 方法三
     manualChunks = {
       // 自定义拆包 使用 legacy 会导致报错
       manualChunks(id) {
