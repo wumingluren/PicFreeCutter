@@ -31,3 +31,10 @@ https://wumingluren.github.io/PicFreeCutter
 
 源码地址：
 https://github.com/wumingluren/PicFreeCutter
+
+下载地址：
+
+链接: https://pan.baidu.com/s/10XOQY5fZjpb5xHdHfd2uBQ?pwd=aycp 提取码: aycp 
+
+
+链接：https://pan.quark.cn/s/9343bd2a3523
